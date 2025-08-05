@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <iomanip> // su funcion es establecer el formato de salida
+
 using std::cout;
 using std::cin;
 using std::endl;
@@ -66,7 +66,7 @@ int main(){
 
     // Puntero nulo
     int* ptr_nulo = nullptr;    // C+11 (preferido)
-    int* ptr_nulo_old = NULL;   // Estilo C (evitar)
+    //int* ptr_nulo_old = NULL;   // Estilo C (evitar)
 
     cout << "ptr_nulo = " << ptr_nulo << "\n";
     // imprime 0 o nullptr, indicando que no apunta a ninguna dirección válida
