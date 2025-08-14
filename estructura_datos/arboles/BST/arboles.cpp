@@ -1,16 +1,3 @@
-/******************************************************************************
- *
- * GUÍA DE ESTUDIO DE ÁRBOLES BINARIOS EN C++
- *
- * Autor: [Tu Nombre]
- * Fecha: [Fecha Actual]
- *
- * Objetivo: Servir como material de referencia y estudio para resolver retos
- * de código relacionados con árboles binarios. El documento está organizado
- * lógicamente para facilitar la consulta, especialmente en formato impreso.
- *
- ******************************************************************************/
-
 // =============================================================================
 // ÍNDICE
 // =============================================================================
@@ -47,6 +34,8 @@
 //    4.4. Validar si es un Árbol Balanceado (esBalanceado)
 //    4.5. Validar si es un Árbol Completo (esCompleto)
 //    4.6. Validar si es un Árbol Simétrico (esSimetrico)
+//    4.7. Contar Hojas de un Árbol (contarHojas)
+//    4.8. Contar Nodos de un Nivel (contarNodosNivel)
 //
 // 5. ALGORITMOS CLÁSICOS (ESTILO LEETCODE)
 //    5.1. Diámetro de un Árbol Binario (diametro)
@@ -148,7 +137,7 @@ void insertarNodo(Nodo*& arbol, int dato, Nodo* padre) {
     }
 }
 
-// 1.4. Búsqueda en un BST (recursiva)
+// 1.4. Búsqueda en un BST (recursiva) asumiendo que es un árbol ordenado
 bool buscarNodo(Nodo* arbol, int dato) {
     // Caso base 1: Si el árbol está vacío, el elemento no se encuentra.
     if (arbol == nullptr) return false;
@@ -558,6 +547,21 @@ bool esSimetrico(Nodo* raiz) {
     return esEspejo(raiz->izq, raiz->der);
 }
 
+// 4.7. Contar Hojas de un Árbol
+int contarHojas(Nodo* raiz) {
+    if (!raiz) return 0; // Un árbol nulo no tiene hojas.
+    if (!raiz->izq && !raiz->der) return 1; // Un nodo hoja cuenta como 1.
+    return contarHojas(raiz->izq) + contarHojas(raiz->der);
+}
+
+// 4.8 Contar nodos de un nivel 
+int contarNodosNivel(Nodo* raiz, int nivel) {
+    if (!raiz) return 0; // Un árbol nulo no tiene nodos.
+    if (nivel == 0) return 1; // Si estamos en el nivel 0, contamos este nodo.
+    // Contamos los nodos en el nivel deseado en ambos subárboles.
+    return contarNodosNivel(raiz->izq, nivel - 1) + contarNodosNivel(raiz->der, nivel - 1);
+}
+
 
 // =============================================================================
 // 5. ALGORITMOS CLÁSICOS (ESTILO LEETCODE)
@@ -709,7 +713,8 @@ int kEsimoMayor(Nodo* raiz, int k) {
     return resultado;
 }
 
-// Función auxiliar para buscar un nodo por su valor (necesaria para `distanciaEntreNodos`).
+// Función auxiliar para buscar un nodo por su valor (necesaria para `distanciaEntreNodos`). 
+// sin asumir que está ordenado, funciona para cualquiert tipo de árbol
 Nodo* buscarNodoPorValor(Nodo* raiz, int valor) {
     if (!raiz) return nullptr;
     if (raiz->dato == valor) return raiz;
@@ -931,11 +936,11 @@ void imprimirArbolVisual(Nodo* raiz, string prefijo = "", bool esIzquierdo = tru
     if (!raiz) return;
 
     cout << prefijo;
-    cout << (esIzquierdo ? "├──" : "└──" );
+    cout << (esIzquierdo ? "└──" : "├──" );
     cout << raiz->dato << endl;
 
-    imprimirArbolVisual(raiz->izq, prefijo + (esIzquierdo ? "│   " : "    "), true);
     imprimirArbolVisual(raiz->der, prefijo + (esIzquierdo ? "│   " : "    "), false);
+    imprimirArbolVisual(raiz->izq, prefijo + (esIzquierdo ? "│   " : "    "), true);
 }
 
 
@@ -948,6 +953,8 @@ void imprimirInfoCompleta(Nodo* raiz) {
     cout << "\n=== INFORMACIÓN COMPLETA DEL ÁRBOL ===\n";
     cout << "Altura: " << altura(raiz) << endl;
     cout << "Número de nodos: " << contarNodos(raiz) << endl;
+    cout << "Número de hojas: " << contarHojas(raiz) << endl;
+    cout << "Número de nodos en nivel 2: " << contarNodosNivel(raiz, 2) << endl;
     cout << "Es válido BST: " << (esValidoBST(raiz) ? "Sí" : "No") << endl;
     cout << "Es balanceado: " << (esBalanceado(raiz) ? "Sí" : "No") << endl;
     cout << "Es completo: " << (esCompleto(raiz) ? "Sí" : "No") << endl;
@@ -991,53 +998,60 @@ void menu() {
     do {
         cout << "\t.:MENÚ ÁRBOLES AVANZADO:." << endl;
         cout << "=== OPERACIONES BÁSICAS ===" << endl;
-        cout << "1. Insertar nodo individual" << endl;
-        cout << "2. Insertar múltiples nodos" << endl;
+        cout << "0. Insertar nodo individual" << endl;
+        cout << "1. Insertar múltiples nodos" << endl;
+        cout << "2. Mostrar árbol (simple)" << endl;
         cout << "3. Mostrar árbol (visual)" << endl;
-        cout << "4. Buscar nodo" << endl;
-        cout << "5. Eliminar nodo" << endl;
-        cout << "6. Eliminar árbol completo" << endl;
-        
+        cout << "4. Existe nodo" << endl;
+        cout << "5. Buscar nodo" << endl;
+        cout << "6. Distancia entre nodos" << endl;
+        cout << "7. Eliminar nodo" << endl;
+        cout << "8. Eliminar árbol completo" << endl;
+
         cout << "\n=== RECORRIDOS ===" << endl;
-        cout << "7. PreOrden" << endl;
-        cout << "8. InOrden" << endl;
-        cout << "9. PostOrden" << endl;
-        cout << "10. Por niveles (BFS)" << endl;
-        cout << "11. Zigzag" << endl;
-        
+        cout << "9. PreOrden" << endl;
+        cout << "10. InOrden" << endl;
+        cout << "11. PostOrden" << endl;
+        cout << "12. Por niveles (BFS)" << endl;
+        cout << "13. Zigzag" << endl;
+
         cout << "\n=== CONSTRUCCIÓN RÁPIDA ===" << endl;
-        cout << "12. Crear desde array" << endl;
-        cout << "13. Crear BST balanceado" << endl;
-        cout << "14. Crear árbol completo" << endl;
-        cout << "15. Crear árbol de expresión" << endl;
+        cout << "14. Crear desde array" << endl;
+        cout << "15. Crear BST balanceado" << endl;
+        cout << "16. Crear árbol completo" << endl;
+        cout << "17. Crear árbol de expresión" << endl;
         
         cout << "\n=== ANÁLISIS Y VALIDACIÓN ===" << endl;
-        cout << "16. Información completa" << endl;
-        cout << "17. Encontrar k-ésimo menor" << endl;
-        cout << "18. Buscar paths con suma" << endl;
+        cout << "18. Información completa" << endl;
+        cout << "19. Encontrar k-ésimo menor" << endl;
+        cout << "20. Buscar paths con suma" << endl;
         
         cout << "\n=== OPERACIONES AVANZADAS ===" << endl;
-        cout << "19. Clonar árbol" << endl;
-        cout << "20. Comparar con un clon" << endl;
-        cout << "21. Serializar/Deserializar" << endl;
-        cout << "22. Evaluar expresión (si es un árbol de expresión)" << endl;
-        
-        cout << "23. SALIR" << endl;
+        cout << "21. Clonar árbol" << endl;
+        cout << "22. Comparar con un clon" << endl;
+        cout << "23. Serializar/Deserializar" << endl;
+        cout << "24. Evaluar expresión (si es un árbol de expresión)" << endl;
+
+        cout << "25. SALIR" << endl;
         cout << "Opción: ";
         cin >> opcion;
 
         switch (opcion) {
-            case 1: {
+            case 0: {
                 cout << "Ingrese número: "; cin >> dato;
                 insertarNodo(arbol, dato, nullptr);
                 break;
             }
-            case 2: {
+            case 1: {
                 cout << "Ingrese números separados por espacios (0 para terminar): ";
                 vector<int> valores; int val;
                 while (cin >> val && val != 0) valores.push_back(val);
                 insertarMultiples(arbol, valores);
                 break;
+            }
+            case 2: {
+                int contador = 0;
+                cout << "\nÁrbol completo:\n"; imprimirArbolSimple(arbol, contador); break;
             }
             case 3: {
                 cout << "\nÁrbol completo:\n"; imprimirArbolVisual(arbol); break;
@@ -1048,25 +1062,38 @@ void menu() {
                 break;
             }
             case 5: {
+                cout << "Elemento a buscar: "; cin >> dato;
+                cout << "Resultado: " << (buscarNodoPorValor(arbol, dato) ? "Encontrado" : "No encontrado") << endl;
+                break;
+            }
+            case 6: {
+                cout << "Distancia entre nodos (ingrese dos valores): ";
+                int val1, val2;
+                cin >> val1 >> val2;
+                int distancia = distanciaEntreNodos(arbol, val1, val2);
+                cout << "Distancia: " << distancia << endl;
+                break;
+            }
+            case 7: {
                 cout << "Elemento a eliminar: "; cin >> dato;
                 eliminar(arbol, dato); break;
             }
-            case 6: {
+            case 8: {
                 eliminarArbolCompleto(arbol); cout << "Árbol eliminado." << endl; break;
             }
-            case 7: {
+            case 9: {
                 cout << "PreOrden: "; preOrden(arbol); cout << endl; break;
             }
-            case 8: {
+            case 10: {
                 cout << "InOrden: "; inOrden(arbol); cout << endl; break;
             }
-            case 9: {
+            case 11: {
                 cout << "PostOrden: "; postOrden(arbol); cout << endl; break;
             }
-            case 10: {
+            case 12: {
                 recorridoPorNiveles(arbol); break;
             }
-            case 11: {
+            case 13: {
                 cout << "Recorrido Zigzag:" << endl;
                 auto zigzag = recorridoZigzag(arbol);
                 for (const auto& nivel : zigzag) {
@@ -1075,7 +1102,7 @@ void menu() {
                 }
                 break;
             }
-            case 12: {
+            case 14: {
                 cout << "Ingrese valores (usar " << INT_MIN << " para null, 0 para terminar): ";
                 vector<int> valores; int val;
                 while (cin >> val && val != 0) valores.push_back(val);
@@ -1083,7 +1110,7 @@ void menu() {
                 cout << "Árbol creado desde array." << endl;
                 break;
             }
-            case 13: {
+            case 15: {
                 cout << "Ingrese valores ordenados (0 para terminar): ";
                 vector<int> valores; int val;
                 while (cin >> val && val != 0) valores.push_back(val);
@@ -1092,29 +1119,29 @@ void menu() {
                 cout << "BST balanceado creado." << endl;
                 break;
             }
-            case 14: {
+            case 16: {
                 int h; cout << "Ingrese altura: "; cin >> h;
                 eliminarArbolCompleto(arbol); arbol = crearArbolCompleto(h);
                 cout << "Árbol completo creado." << endl;
                 break;
             }
-            case 15: {
+            case 17: {
                 string postfija; cout << "Ingrese expresión postfija (sin espacios): "; cin >> postfija;
                 eliminarArbolCompleto(arbol);
                 arbol = crearArbolExpresion(postfija);
                 if (arbol) cout << "Árbol de expresión creado." << endl;
                 break;
             }
-            case 16: {
+            case 18: {
                 imprimirInfoCompleta(arbol); break;
             }
-            case 17: {
+            case 19: {
                 int k; cout << "Ingrese k: "; cin >> k;
                 int res = kEsimoMenor(arbol, k);
                 cout << "K-ésimo menor: " << (res == -1 ? "No encontrado" : to_string(res)) << endl;
                 break;
             }
-            case 18: {
+            case 20: {
                 int suma; cout << "Ingrese suma objetivo: "; cin >> suma;
                 auto paths = todosLosPathsSuma(arbol, suma);
                 cout << "Paths con suma " << suma << ":" << endl;
@@ -1124,20 +1151,20 @@ void menu() {
                 }
                 break;
             }
-            case 19: {
+            case 21: {
                 Nodo* clon = clonarArbol(arbol);
                 cout << "Árbol clonado. Mostrando clon:" << endl;
                 imprimirArbolVisual(clon);
                 eliminarArbolCompleto(clon);
                 break;
             }
-            case 20: {
+            case 22: {
                 Nodo* clon = clonarArbol(arbol);
                 cout << "Comparando con clon: " << (sonIdenticos(arbol, clon) ? "Idénticos" : "Diferentes") << endl;
                 eliminarArbolCompleto(clon);
                 break;
             }
-            case 21: {
+            case 23: {
                 string serializado = serializar(arbol);
                 cout << "Serializado: " << serializado << endl;
                 Nodo* deserializado = deserializar(serializado);
@@ -1145,7 +1172,7 @@ void menu() {
                 eliminarArbolCompleto(deserializado);
                 break;
             }
-            case 22: {
+            case 24: {
                 if (esArbolExpresion(arbol)) {
                     cout << "Resultado de la expresión: " << evaluarExpresion(arbol) << endl;
                 } else {
@@ -1155,7 +1182,7 @@ void menu() {
             }
         }
         
-        if (opcion != 23) {
+        if (opcion != 25) {
             cout << "\nPresione Enter para continuar...";
             cin.ignore();
             cin.get();
@@ -1166,9 +1193,9 @@ void menu() {
         #else
             system("clear");
         #endif
-        
-    } while (opcion != 23);
-    
+
+    } while (opcion != 25);
+
     eliminarArbolCompleto(arbol);
     cout << "Programa terminado. Memoria liberada." << endl;
 }
