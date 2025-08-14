@@ -105,7 +105,6 @@ struct Nodo {
     Nodo* izq;     // Puntero al hijo izquierdo.
     Nodo* der;     // Puntero al hijo derecho.
     Nodo* padre;   // Puntero al nodo padre (útil para eliminación y algoritmos complejos).
-
     // Constructor para inicializar un nodo con un valor y opcionalmente su padre.
     Nodo(int valor = 0, Nodo* p = nullptr) : dato(valor), izq(nullptr), der(nullptr), padre(p) {}
 };
