@@ -114,6 +114,8 @@ bool HashTable<T>::setValue(const string& key, T new_value) {
         return false;  // Tabla vacía
     }
 
+
+
     size_t index = hash(key);
     auto& bucket = table[index];
 

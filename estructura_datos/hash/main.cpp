@@ -51,8 +51,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <list>       // Útil para implementaciones alternativas de encadenamiento
-#include <climits>    // Para INT_MIN como valor de retorno en caso de error
+#include <list>          // Útil para implementaciones alternativas de encadenamiento
+#include <climits>       // Para INT_MIN como valor de retorno en caso de error
+#include <unordered_map> // Para problemas LeetCode con hash maps
+#include <unordered_set> // Para problemas LeetCode con hash sets
+#include <algorithm>     // Para sort() en agrupar anagramas
 
 using namespace std;
 
@@ -277,7 +280,7 @@ class HashTable {
         // 3.5 Mostrar tabla
         void display(){
             cout << "\n--- Contenido de HashTable ---" << endl;
-            cout << "Capacidad: " << capacity << " | Tamaño: " << size << " \ Factor de carga: " << getLoadFactor() << endl;
+            cout << "Capacidad: " << capacity << " | Tamaño: " << size << " | Factor de carga: " << getLoadFactor() << endl;
             for(int i = 0; i < capacity; ++i){
                 cout << "Bucket " << i << ": ";
                 HashNode* current = table[i];
@@ -296,6 +299,9 @@ class HashTable {
         }
     };
 
+    // Declaración anticipada de la función para usarla en el menu
+    void demostrarProblemasLeetCode();
+
     void menu() {
     HashTable* ht = new HashTable(5); // Empezar con una capacidad pequeña para ver el rehash.
     int opcion;
@@ -308,7 +314,8 @@ class HashTable {
         cout << "2. Buscar un valor por clave" << endl;
         cout << "3. Eliminar un par por clave" << endl;
         cout << "4. Mostrar tabla completa" << endl;
-        cout << "5. Salir" << endl;
+        cout << "5. Demostrar problemas LeetCode (Índice 4)" << endl;
+        cout << "6. Salir" << endl;
         cout << "Opción: ";
         cin >> opcion;
         
@@ -339,13 +346,16 @@ class HashTable {
                 ht->display();
                 break;
             case 5:
+                demostrarProblemasLeetCode();
+                break;
+            case 6:
                 cout << "Saliendo del programa..." << endl;
                 break;
             default:
                 cout << "Opción no válida. Intente de nuevo." << endl;
         }
 
-        if (opcion != 5) {
+        if (opcion != 6) {
              cout << "\nPresione Enter para continuar...";
              cin.ignore();
              cin.get();
@@ -356,7 +366,7 @@ class HashTable {
             system("clear");
         #endif
 
-    } while (opcion != 5);
+    } while (opcion != 6);
     
     // Es crucial liberar la memoria al final.
     delete ht;
@@ -374,43 +384,227 @@ int main() {
 // Las tablas de hash (o `unordered_map` en C++) son extremadamente útiles para
 // resolver problemas que requieren búsquedas rápidas.
 
-/*
 // 4.1. Contar Frecuencia de Elementos
-// Problema: Dado un array de strings, contar cuántas veces aparece cada uno.
-// Solución: Usar una tabla de hash donde la clave es el string y el valor es su frecuencia.
+// =============================================================================
+// PROBLEMA: Dado un array de strings, contar cuántas veces aparece cada uno.
+// ALGORITMO: Usar una tabla de hash donde la clave es el string y el valor es su frecuencia.
+// COMPLEJIDAD: O(n) tiempo, O(k) espacio (donde k = número de elementos únicos)
 void contarFrecuencia() {
-    vector<string> data = {"manzana", "platano", "manzana", "naranja", "platano", "manzana"};
+    cout << "\n=== 4.1 CONTAR FRECUENCIA DE ELEMENTOS ===" << endl;
+    
+    // Datos de ejemplo: frutas con repeticiones
+    vector<string> data = {"manzana", "platano", "manzana", "naranja", "platano", "manzana", "kiwi", "naranja"};
+    
+    cout << "Array original: [";
+    for (size_t i = 0; i < data.size(); i++) {
+        cout << "\"" << data[i] << "\"";
+        if (i < data.size() - 1) cout << ", ";
+    }
+    cout << "]" << endl;
+    
+    // Usando nuestra implementación de HashTable
     HashTable freqMap;
+    
+    // Procesamos cada elemento del array
     for (const string& fruta : data) {
+        // Buscamos si el elemento ya existe en la tabla
         int currentValue = freqMap.search(fruta);
-        if (currentValue == INT_MIN) { // Si no existe
+        
+        if (currentValue == INT_MIN) { 
+            // El elemento no existe: lo insertamos con frecuencia 1
             freqMap.insert(fruta, 1);
+            cout << "Insertando '" << fruta << "' por primera vez (frecuencia: 1)" << endl;
         } else {
-            freqMap.insert(fruta, currentValue + 1);
+            // El elemento ya existe: incrementamos su frecuencia
+            freqMap.insert(fruta, currentValue + 1);  // insert sobrescribe el valor
+            cout << "Actualizando '" << fruta << "' (nueva frecuencia: " << (currentValue + 1) << ")" << endl;
         }
     }
+    
+    cout << "\nTabla de frecuencias resultante:" << endl;
     freqMap.display();
+    
+    // Alternativa usando std::unordered_map (más simple)
+    cout << "\n--- Alternativa con std::unordered_map ---" << endl;
+    unordered_map<string, int> freqMapSTL;
+    for (const string& fruta : data) {
+        freqMapSTL[fruta]++;  // Operador [] crea automáticamente entrada con valor 0 si no existe
+    }
+    
+    cout << "Frecuencias usando STL:" << endl;
+    for (const auto& pair : freqMapSTL) {
+        cout << "  " << pair.first << ": " << pair.second << endl;
+    }
 }
 
 // 4.2. Encontrar Duplicados en un Array
-// Problema: Determinar si un array de números contiene algún duplicado.
-// Solución: Iterar por el array. Para cada número, intentar insertarlo en una
-// tabla de hash (o un set, que es una tabla de hash de solo claves). Si ya existe,
-// has encontrado un duplicado. Retorna true. Si terminas el bucle, retorna false.
-// Esto es O(n) en promedio, mucho mejor que el O(n^2) de comparar cada elemento con todos los demás.
+// =============================================================================
+// PROBLEMA: Determinar si un array de números contiene algún duplicado.
+// ALGORITMO: Usar un set/tabla de hash para rastrear elementos ya vistos.
+// COMPLEJIDAD: O(n) tiempo, O(n) espacio en el peor caso
+bool encontrarDuplicados(const vector<int>& nums) {
+    cout << "\n=== 4.2 ENCONTRAR DUPLICADOS EN UN ARRAY ===" << endl;
+    
+    cout << "Array a analizar: [";
+    for (size_t i = 0; i < nums.size(); i++) {
+        cout << nums[i];
+        if (i < nums.size() - 1) cout << ", ";
+    }
+    cout << "]" << endl;
+    
+    // Usamos unordered_set para rastrear elementos vistos
+    unordered_set<int> vistos;
+    
+    for (int i = 0; i < (int)nums.size(); i++) {
+        int num = nums[i];
+        
+        // Verificamos si ya hemos visto este número
+        if (vistos.find(num) != vistos.end()) {
+            cout << "¡DUPLICADO ENCONTRADO! El número " << num 
+                 << " aparece en el índice " << i << " y ya había sido visto antes." << endl;
+            return true;
+        }
+        
+        // Si no lo hemos visto, lo agregamos al conjunto
+        vistos.insert(num);
+        cout << "Número " << num << " agregado al conjunto (índice " << i << ")" << endl;
+    }
+    
+    cout << "No se encontraron duplicados." << endl;
+    return false;
+}
 
 // 4.3. Problema de "Two Sum" (LeetCode 1)
-// Problema: Dado un array de enteros `nums` y un entero `target`, retornar los
-// índices de dos números tales que su suma sea `target`.
-// Solución: Usar una tabla de hash para almacenar `(valor, índice)`.
-// Para cada número `x` en el array, calcula el complemento `y = target - x`.
-// Busca `y` en la tabla de hash. Si lo encuentras, has hallado la solución.
-// Si no, inserta `(x, su_indice)` en la tabla. Esto es O(n).
+// =============================================================================
+// PROBLEMA: Dado un array de enteros y un target, encontrar dos números que sumen target.
+// ALGORITMO: Hash table para almacenar (valor, índice). Para cada número x, buscar (target - x).
+// COMPLEJIDAD: O(n) tiempo, O(n) espacio
+vector<int> twoSum(const vector<int>& nums, int target) {
+    cout << "\n=== 4.3 TWO SUM (LEETCODE 1) ===" << endl;
+    
+    cout << "Array: [";
+    for (size_t i = 0; i < nums.size(); i++) {
+        cout << nums[i];
+        if (i < nums.size() - 1) cout << ", ";
+    }
+    cout << "], Target: " << target << endl;
+    
+    // Mapa que almacena (valor, índice)
+    unordered_map<int, int> valorIndice;
+    
+    for (int i = 0; i < (int)nums.size(); i++) {
+        int numeroActual = nums[i];
+        int complemento = target - numeroActual;
+        
+        cout << "Índice " << i << ": número = " << numeroActual 
+             << ", complemento necesario = " << complemento;
+        
+        // Buscamos si el complemento ya existe en nuestro mapa
+        auto it = valorIndice.find(complemento);
+        if (it != valorIndice.end()) {
+            // ¡Encontramos la solución!
+            cout << " -> ¡ENCONTRADO! El complemento está en el índice " << it->second << endl;
+            cout << "SOLUCIÓN: números " << complemento << " (índice " << it->second 
+                 << ") + " << numeroActual << " (índice " << i << ") = " << target << endl;
+            return {it->second, i};
+        }
+        
+        // Si no encontramos el complemento, agregamos el número actual al mapa
+        valorIndice[numeroActual] = i;
+        cout << " -> Agregando " << numeroActual << " al mapa con índice " << i << endl;
+    }
+    
+    cout << "No se encontró solución." << endl;
+    return {};  // Vector vacío si no hay solución
+}
 
 // 4.4. Agrupar Anagramas (LeetCode 49)
-// Problema: Dado un array de strings, agrupar los anagramas.
-// Solución: Usar una tabla de hash donde la clave es una representación canónica
-// de una palabra (ej. la palabra ordenada alfabéticamente) y el valor es una
-// lista de todas las palabras que son anagramas (comparten esa clave).
-// ej. "eat", "tea", "ate" -> clave "aet" -> valor ["eat", "tea", "ate"]
-*/
+// =============================================================================
+// PROBLEMA: Dado un array de strings, agrupar todos los anagramas juntos.
+// ALGORITMO: Usar la representación canónica (string ordenado) como clave del hash.
+// COMPLEJIDAD: O(n * k log k) donde n = número de strings, k = longitud promedio de strings
+vector<vector<string>> agruparAnagramas(const vector<string>& strs) {
+    cout << "\n=== 4.4 AGRUPAR ANAGRAMAS (LEETCODE 49) ===" << endl;
+    
+    cout << "Strings de entrada: [";
+    for (size_t i = 0; i < strs.size(); i++) {
+        cout << "\"" << strs[i] << "\"";
+        if (i < strs.size() - 1) cout << ", ";
+    }
+    cout << "]" << endl;
+    
+    // Mapa: clave = string ordenado (representación canónica), valor = grupo de anagramas
+    unordered_map<string, vector<string>> grupos;
+    
+    for (const string& str : strs) {
+        // Creamos la clave canónica ordenando los caracteres del string
+        string clave = str;
+        sort(clave.begin(), clave.end());
+        
+        cout << "String: \"" << str << "\" -> Clave canónica: \"" << clave << "\"";
+        
+        // Agregamos el string original al grupo correspondiente
+        grupos[clave].push_back(str);
+        
+        cout << " -> Grupo actual: [";
+        for (size_t i = 0; i < grupos[clave].size(); i++) {
+            cout << "\"" << grupos[clave][i] << "\"";
+            if (i < grupos[clave].size() - 1) cout << ", ";
+        }
+        cout << "]" << endl;
+    }
+    
+    // Convertimos el mapa a vector de vectores
+    vector<vector<string>> resultado;
+    cout << "\nGrupos de anagramas encontrados:" << endl;
+    int grupoNum = 1;
+    for (const auto& pair : grupos) {
+        cout << "Grupo " << grupoNum++ << " (clave: \"" << pair.first << "\"): [";
+        for (size_t i = 0; i < pair.second.size(); i++) {
+            cout << "\"" << pair.second[i] << "\"";
+            if (i < pair.second.size() - 1) cout << ", ";
+        }
+        cout << "]" << endl;
+        resultado.push_back(pair.second);
+    }
+    
+    return resultado;
+}
+
+// Función para demostrar todos los problemas del índice 4
+void demostrarProblemasLeetCode() {
+    cout << "\n" << string(80, '=') << endl;
+    cout << "DEMOSTRACION DE PROBLEMAS LEETCODE CON TABLAS DE HASH" << endl;
+    cout << string(80, '=') << endl;
+    
+    // 4.1 Contar frecuencias
+    contarFrecuencia();
+    
+    // 4.2 Encontrar duplicados
+    vector<int> arrayConDuplicados = {1, 2, 3, 4, 5, 2, 6, 7};
+    vector<int> arraySinDuplicados = {1, 2, 3, 4, 5, 6, 7, 8};
+    
+    encontrarDuplicados(arrayConDuplicados);
+    encontrarDuplicados(arraySinDuplicados);
+    
+    // 4.3 Two Sum
+    vector<int> nums1 = {2, 7, 11, 15};
+    int target1 = 9;
+    vector<int> resultado1 = twoSum(nums1, target1);
+    
+    vector<int> nums2 = {3, 2, 4};
+    int target2 = 6;
+    vector<int> resultado2 = twoSum(nums2, target2);
+    
+    // 4.4 Agrupar Anagramas
+    vector<string> palabras = {"eat", "tea", "tan", "ate", "nat", "bat", "tab"};
+    vector<vector<string>> grupos = agruparAnagramas(palabras);
+    
+    cout << "\n" << string(80, '=') << endl;
+    cout << "RESUMEN DE COMPLEJIDADES:" << endl;
+    cout << "- Contar Frecuencias: O(n) tiempo, O(k) espacio" << endl;
+    cout << "- Encontrar Duplicados: O(n) tiempo, O(n) espacio" << endl;
+    cout << "- Two Sum: O(n) tiempo, O(n) espacio" << endl;
+    cout << "- Agrupar Anagramas: O(n * k log k) tiempo, O(n * k) espacio" << endl;
+    cout << string(80, '=') << endl;
+}

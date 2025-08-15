@@ -132,57 +132,57 @@ int main() {
         words_table.setKey(w, w);
     }
 
-    cout << "==================================================" << endl;
-    cout << "               ANÁLISIS DE HASHING" << endl;
-    cout << "==================================================" << endl;
+    // cout << "==================================================" << endl;
+    // cout << "               ANÁLISIS DE HASHING" << endl;
+    // cout << "==================================================" << endl;
 
-    // Analizar para 8 bits
-    analyze_hash_function("Suma de Caracteres", hash_sum, words, 8);
-    analyze_hash_function("Producto de Caracteres", hash_prod, words, 8);
-    analyze_hash_function("XOR por Trozos", hash_xor, words, 8);
+    // // Analizar para 8 bits
+    // analyze_hash_function("Suma de Caracteres", hash_sum, words, 8);
+    // analyze_hash_function("Producto de Caracteres", hash_prod, words, 8);
+    // analyze_hash_function("XOR por Trozos", hash_xor, words, 8);
 
-    // Analizar para 14 bits
-    analyze_hash_function("Suma de Caracteres", hash_sum, words, 14);
-    analyze_hash_function("Producto de Caracteres", hash_prod, words, 14);
-    analyze_hash_function("XOR por Trozos", hash_xor, words, 14);
+    // // Analizar para 14 bits
+    // analyze_hash_function("Suma de Caracteres", hash_sum, words, 14);
+    // analyze_hash_function("Producto de Caracteres", hash_prod, words, 14);
+    // analyze_hash_function("XOR por Trozos", hash_xor, words, 14);
 
-    // Pruebas hash table
-    HashTable<int> my_table;
+    // // Pruebas hash table
+    // HashTable<int> my_table;
 
-    cout << "Insertando elementos..." << endl;
-    my_table.setKey("uno", 1);
-    my_table.setKey("dos", 2);
-    my_table.setKey("diez", 10);
-    my_table.setKey("test", 123);
+    // cout << "Insertando elementos..." << endl;
+    // my_table.setKey("uno", 1);
+    // my_table.setKey("dos", 2);
+    // my_table.setKey("diez", 10);
+    // my_table.setKey("test", 123);
 
-    cout << "El valor de 'dos' es: " << my_table.getKey("dos").value_or(-1) << endl;
-    cout << "El valor de 'diez' es: " << my_table.getKey("diez").value_or(-1) << endl;
+    // cout << "El valor de 'dos' es: " << my_table.getKey("dos").value_or(-1) << endl;
+    // cout << "El valor de 'diez' es: " << my_table.getKey("diez").value_or(-1) << endl;
 
-    // Actualizar un valor existente
-    cout << "Actualizando 'uno' a 111..." << endl;
-    my_table.setKey("uno", 111);
-    cout << "El nuevo valor de 'uno' es: " << my_table.getKey("uno").value_or(-1) << endl;
-    if (my_table.setValue("uno", 42)) {
-        cout << "Valor actualizado correctamente" << endl;
-    } else {
-        cout << "La clave no existe en la tabla" << endl;
-    }
+    // // Actualizar un valor existente
+    // cout << "Actualizando 'uno' a 111..." << endl;
+    // my_table.setKey("uno", 111);
+    // cout << "El nuevo valor de 'uno' es: " << my_table.getKey("uno").value_or(-1) << endl;
+    // if (my_table.setValue("uno", 42)) {
+    //     cout << "Valor actualizado correctamente" << endl;
+    // } else {
+    //     cout << "La clave no existe en la tabla" << endl;
+    // }
 
-    // Probar una clave que no existe
-    if (!my_table.getKey("cinco")) {
-        cout << "La clave 'cinco' no fue encontrada (correcto)." << endl;
-    }
+    // // Probar una clave que no existe
+    // if (!my_table.getKey("cinco")) {
+    //     cout << "La clave 'cinco' no fue encontrada (correcto)." << endl;
+    // }
 
-    // Probar con tipo de dato string
-    HashTable<string> string_table;
-    string_table.setKey("nombre", "Juan");
-    string_table.setKey("apellido", "Perez");
-    cout << "El valor de 'nombre' es: " << string_table.getKey("nombre").value_or("N/A") << endl;
+    // // Probar con tipo de dato string
+    // HashTable<string> string_table;
+    // string_table.setKey("nombre", "Juan");
+    // string_table.setKey("apellido", "Perez");
+    // cout << "El valor de 'nombre' es: " << string_table.getKey("nombre").value_or("N/A") << endl;
 
-    // mostrar tabla
-    my_table.display();
-    string_table.display();
-    //words_table.display();
+    // // mostrar tabla
+    // my_table.display();
+    // string_table.display();
+    words_table.display();
     return 0;
 }
 
