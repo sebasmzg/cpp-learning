@@ -26,7 +26,7 @@ unsigned long best_hash(const string& key, int bits) {
 
     // Si se desea limitar a un número específico de bits (útil para el análisis, no tanto para el índice)
     if (bits < 64) {
-        unsigned long mask = (1UL << bits) - 1;
+        unsigned long mask = (1UL << bits) - 1; // -1 para obtener los bits menos significativos
         return hash_value & mask;
     }
     return hash_value;
@@ -34,20 +34,46 @@ unsigned long best_hash(const string& key, int bits) {
 
 // Constructor
 template<typename T>
-HashTable<T>::HashTable(size_t initial_capacity) : table(initial_capacity), current_size(0) {}
+HashTable<T>::HashTable(size_t initial_capacity){
+    if(initial_capacity < 8) initial_capacity = 8;
+    size_t capacity = 1;
+    while (capacity < initial_capacity) {
+        capacity *= 2;
+    }
+    table.resize(capacity);
+    load_factor_threshold = 0.75; // factor de carga maximo
+    cout << "HashTable creada con " << capacity << " buckets" << endl;
+}
 
 // hash interno para mapear el tamaño actual
 template<typename T>
 size_t HashTable<T>::hash(const string& key) const {
-    // 64 bits para el hash intermedio para tener una buena distribución
-    unsigned long h = best_hash(key, 64);
-    return h % table.size(); // Módulo con el tamaño actual de la tabla
+    unsigned long hash_value = best_hash(key, 32); // 32 bits para el hash intermedio
+    return hash_value % table.size(); // Mapear al rango de tabla
 }
 
 // Redimensionar
 template<typename T>
 void HashTable<T>::resize() {
+    
+    auto old_table = move(table);
+    table.clear();
+    table.resize(old_table.size() * 2);
+    size_t old_element_count = element_count;
+    element_count = 0;
+    for (const auto& bucket : old_table) {
+        for (const auto& pair : bucket) {
+            // Usar inserción interna sin verificar factor de carga
+            size_t new_index = hash(pair.first);
+            table[new_index].emplace_back(pair.first, pair.second);
+            element_count++;
+        }
+    }
+    cout << "   Redimensionamiento completado: " << old_element_count 
+              << " elementos redistribuidos" << endl;
+              
     // primos cercanos a potencia 2
+    /*
     static const size_t prime_sizes[] = {
         17, 37, 79, 163, 331, 673, 1361, 2729, 5471, 10949, 21911, 43853
     };
@@ -80,6 +106,7 @@ void HashTable<T>::resize() {
     }
     // Reemplazar la tabla vieja por la nueva
     table = move(new_table);
+    */
 }
 
 // Insertar o actualizar un par clave-valor
@@ -87,7 +114,8 @@ template<typename T>
 void HashTable<T>::setKey(const string& key, T value) {
     // Comprobar factor de carga y redimensionar si es necesario
     // Un factor de carga > 0.75 es un umbral común
-    if (static_cast<double>(current_size) / table.size() > 0.75) {
+    double current_load_factor = static_cast<double>(element_count) / table.size();
+    if (current_load_factor > 0.75) {
         resize();
     }
 
@@ -98,21 +126,22 @@ void HashTable<T>::setKey(const string& key, T value) {
     for (auto& pair : bucket) {
         if (pair.first == key) {
             pair.second = value;
+            cout << " Clave actualizada: \"" << key << "\": " << value << endl;
             return;
         }
     }
 
-    // Si no se encuentra, insertatr
+    // Si no se encuentra, insertar
     bucket.emplace_back(key, value);
-    current_size++; // aumentar tamaño
+    element_count++;
 }
 
 // Actualizar valor
 template<typename T>
 bool HashTable<T>::setValue(const string& key, T new_value) {
-    if (current_size == 0) {
-        return false;  // Tabla vacía
-    }
+    // if (bucket_capacity == 0) {
+    //     return false;  // Tabla vacía
+    // }
 
     size_t index = hash(key);
     auto& bucket = table[index];
@@ -127,6 +156,7 @@ bool HashTable<T>::setValue(const string& key, T new_value) {
     }
 
     // Clave no encontrada
+    cout << "Clave no encontrada para actualizar: " << key << endl;
     return false;
 }
 
@@ -151,7 +181,8 @@ void HashTable<T>::clear() {
     for (auto& bucket : table) {
         bucket.clear();
     }
-    current_size = 0;
+    element_count = 0;
+    cout << "Tabla hash limpiada." << endl;
 }
 
 // Mostrar tabla
@@ -160,10 +191,10 @@ void HashTable<T>::display() const {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║             Visualización de HashTable           ║" << endl;
     cout << "╠══════════════════════════════════════════════════╣" << endl;
-    cout << "║ Elementos totales: " << current_size
+    cout << "║ Elementos totales: " << element_count
          << " | Buckets: " << table.size()
          << " | Factor de carga: " << fixed << setprecision(2)
-         << static_cast<double>(current_size) / table.size() << " ║" << endl;
+         << static_cast<double>(element_count) / table.size() << " ║" << endl;
     cout << "╠══════════════════════════════════════════════════╣" << endl;
 
     // Estadísticas
@@ -189,6 +220,7 @@ void HashTable<T>::display() const {
                 if (!primero) cout << " → ";
                 primero = false;
                 cout << "■ \"" << par.first << "\":" << par.second;
+                
             }
         }
         cout << endl;

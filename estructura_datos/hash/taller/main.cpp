@@ -102,6 +102,7 @@ void analyze_hash_function(
 }
 
 int main() {
+    
     string path;
     #ifdef _WIN32
         // Windows
@@ -126,12 +127,19 @@ int main() {
         words.push_back(word);
     }
     cout << "Se cargaron " << words.size() << " palabras." << endl;
-
+    
+    vector<string> sample_words;
+    size_t sample_size = min(static_cast<size_t>(1000), words.size());
+    
+    for (size_t i = 0; i < sample_size; ++i) {
+        sample_words.push_back(words[i]);
+    }
+    
     HashTable<string> words_table;
     for (const auto& w : words) {
         words_table.setKey(w, w);
     }
-
+    /*
     cout << "==================================================" << endl;
     cout << "               ANÁLISIS DE HASHING" << endl;
     cout << "==================================================" << endl;
@@ -145,7 +153,8 @@ int main() {
     analyze_hash_function("Suma de Caracteres", hash_sum, words, 14);
     analyze_hash_function("Producto de Caracteres", hash_prod, words, 14);
     analyze_hash_function("XOR por Trozos", hash_xor, words, 14);
-
+    */
+   /*
     // Pruebas hash table
     HashTable<int> my_table;
 
@@ -182,7 +191,8 @@ int main() {
     // mostrar tabla
     my_table.display();
     string_table.display();
-    //words_table.display();
+*/
+    words_table.display();
     return 0;
 }
 

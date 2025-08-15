@@ -34,7 +34,9 @@ class HashTable {
 
         // Chaining
         vector<std::list<KeyValuePair>> table;
-        size_t current_size;
+        //size_t bucket_capacity;
+        size_t element_count;
+        double load_factor_threshold;
 
         // Función de hash interna
         size_t hash(const std::string& key) const;
