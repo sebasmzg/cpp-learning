@@ -506,8 +506,8 @@ void probarProblemaMochila() {
 
 const int M = 12;   // número máximo de objetos
 int n;              // número de objetos
-int pesoObjs[M];
-int valorObjs[M];
+int pesoObjs[M];    // declarar pesos de los objetos
+int valorObjs[M];   // declarar valores de los objetos
 conjunto actual, optimo;
 int pesoMaximo;
 
@@ -531,6 +531,7 @@ void probarObjeto(int i, int pt, int va, int& mejorValor){
         actual.insertar(i);                      // Incluir objeto
         probarObjeto(i + 1, pt + pesoObjs[i - 1], va + valorObjs[i - 1], mejorValor);
         actual.retirar(i);                       // Backtrack: quitar objeto
+        // El objeto se retira de la solución actual porque se está explorando otra rama en la búsqueda
     }
     
     // OPCIÓN 2: NO INCLUIR el objeto i
