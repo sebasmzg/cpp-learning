@@ -53,6 +53,7 @@ void ordIntercambio(int a[], int n){
 
 
 // SELECCIÓN
+// O(n²)
 void seleccion(int a[], int n){
     int indiceMenor;
         // Ordenar a[0]..a[n-2] y a[n-1] en cada pasada
